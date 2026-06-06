@@ -4,7 +4,7 @@
 **Security Classification:** Strictly Confidential / Investor-Ready  
 **Lead Architects:** Chief Technology Officer & Global Infrastructure Architect, Icobo Group  
 
-![Mantle - Strategic Raw Materials](file:///C:/Users/salma/OneDrive/Documents/icobo%20confidantional/mantle%20project/assets/mantle_hero_industrial.jpg)
+![Mantle - Strategic Raw Materials](assets/mantle_hero_industrial.jpg)
 
 ---
 
@@ -56,7 +56,7 @@ To maximize asset protection and tax efficiency, the core intellectual property 
 
 Mantle sits at the center of the Icobo Group conglomerate, orchestrating data and control signals between four primary operational pillars.
 
-![Mantle - Supplying the Foundations of Industry](file:///C:/Users/salma/OneDrive/Documents/icobo%20confidantional/mantle%20project/assets/mantle_hero_shipping.jpg)
+![Mantle - Supplying the Foundations of Industry](assets/mantle_hero_shipping.jpg)
 
 ```mermaid
 graph TD
@@ -117,7 +117,7 @@ This is the physical production infrastructure, featuring our advanced **OmniFor
 *   Mantle routes digital orders directly to these facilities, bypassing intermediate plant management.
 *   Raw scrap is converted into our high-margin, proprietary product lines: **Cuprogen** (ultra-pure copper rod and wire) and **Aurogen** (high-grade aluminum extrusions), alongside industrial plastic granules and paper packaging.
 
-![Mantle - Foundations of Global Industry](file:///C:/Users/salma/OneDrive/Documents/icobo%20confidantional/mantle%20project/assets/mantle_hero_mining.jpg)
+![Mantle - Foundations of Global Industry](assets/mantle_hero_mining.jpg)
 
 ---
 
@@ -130,7 +130,7 @@ The following presentation details the operational mechanics, cash routing, and 
 ### Closed-Loop Enterprise Environment
 Mantle acts as the centralized digital nervous system of the Icobo Group, synchronizing B2B sales portals, recycling loops, financial ledgers, and automated smelting furnaces.
 
-![Mantle Dashboard](file:///C:/Users/salma/OneDrive/Documents/icobo%20confidantional/mantle%20project/assets/mantle_dashboard.png)
+![Mantle Dashboard](assets/mantle_dashboard.png)
 
 *   **Zero-Human Latency:** High-availability API mesh links orders directly to machine code.
 *   **Safe-Doubt Execution:** Failover servers locally deployed in JAFZA, UAE.
@@ -139,7 +139,7 @@ Mantle acts as the centralized digital nervous system of the Icobo Group, synchr
 ### Smelting Raw Scrap to Premium Brands
 Our IoT-enabled sorting facilities feed raw HMS and used R50/R65 rail tracks into OmniForge and OmniMatrix setups to produce Cuprogen and Aurogen.
 
-![SmartCycle Sorting Facility](file:///C:/Users/salma/OneDrive/Documents/icobo%20confidantional/mantle%20project/assets/smartcycle_facility.png)
+![SmartCycle Sorting Facility](assets/smartcycle_facility.png)
 
 *   **Feedstock Tracking:** SmartCycle monitors purity levels and logistics in real-time.
 *   **Output Quality Control:** Laser telemetry tracks Cuprogen extrusion tolerances.
@@ -148,7 +148,7 @@ Our IoT-enabled sorting facilities feed raw HMS and used R50/R65 rail tracks int
 ### Capital Optimization and Tax Neutrality
 Mantle uses proprietary AI algorithms to route subsidiary earnings to JAFZA via software licensing fees and automates Back-to-Back Letters of Credit.
 
-![Global Capital Corridors](file:///C:/Users/salma/OneDrive/Documents/icobo%20confidantional/mantle%20project/assets/global_capital_flow.png)
+![Global Capital Corridors](assets/global_capital_flow.png)
 
 *   **Deduction Optimization:** Software licenses reduce high-tax local liabilities.
 *   **Zero Cash-Lock:** Automates Back-to-Back LC routing to purchase UK scrap.

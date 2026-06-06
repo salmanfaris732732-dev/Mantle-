@@ -1001,14 +1001,7 @@
     <aside class="sidebar-nav">
       <div class="sidebar-title">Sections</div>
       <ul class="sidebar-menu">
-        <li class="sidebar-link active" onclick="scrollToSection('sec-title')">Title Page</li>
-        <li class="sidebar-link" onclick="scrollToSection('1-executive-summary')">Executive Summary</li>
-        <li class="sidebar-link" onclick="scrollToSection('2-architectural-blueprint')">Architectural Blueprint</li>
-        <li class="sidebar-link" onclick="scrollToSection('3-investor-pitch-slide-deck-mantle-presentation')">Investor Pitch Deck</li>
-        <li class="sidebar-link" onclick="scrollToSection('4-ai-automation-stack')">AI & Automation Stack</li>
-        <li class="sidebar-link" onclick="scrollToSection('5-strategic-financial-advantage-intellectual-property-data-transfer-pricing')">Strategic Financial Advantage</li>
-        <li class="sidebar-link" onclick="scrollToSection('6-deployment-roadmap')">Deployment Roadmap</li>
-        <li class="sidebar-link" onclick="scrollToSection('7-system-governance-risk-matrices')">System Governance</li>
+        <!-- Dynamically generated links -->
       </ul>
     </aside>
 
@@ -1322,6 +1315,50 @@ The execution of Project Mantle is structured across four strategic, overlapping
       }
     }
 
+    // Dynamically build the sidebar based on rendered headings
+    function buildSidebar() {
+      const reportContainer = document.getElementById("report-content");
+      const menuContainer = document.querySelector(".sidebar-menu");
+      if (!menuContainer || !reportContainer) return;
+
+      // Clear existing hardcoded links
+      menuContainer.innerHTML = "";
+
+      // Find h1 (Title Page) and h2 elements
+      const headings = reportContainer.querySelectorAll("h1, h2");
+      
+      headings.forEach((heading, index) => {
+        let slug = heading.id;
+        if (!slug) {
+          slug = heading.textContent.toLowerCase()
+            .replace(/[^\w\s-]/g, '')
+            .trim()
+            .replace(/\s+/g, '-');
+          if (document.getElementById(slug)) {
+            slug = `${slug}-${index}`;
+          }
+          heading.id = slug;
+        }
+
+        // Create sidebar link
+        const li = document.createElement("li");
+        li.className = `sidebar-link ${index === 0 ? 'active' : ''}`;
+        
+        // Strip out the section numbers from display text for cleaner look
+        let text = heading.textContent;
+        text = text.replace(/SYSTEM V1\.1\.0|ICOBO ORIGIN/g, "").trim();
+        
+        li.textContent = text;
+        li.setAttribute("data-target", slug);
+        
+        li.onclick = () => {
+          scrollToSection(slug);
+        };
+        
+        menuContainer.appendChild(li);
+      });
+    }
+
     // Update active links in sidebar during scroll
     window.addEventListener('scroll', () => {
       if (document.body.classList.contains("slides-mode")) return;
@@ -1330,6 +1367,10 @@ The execution of Project Mantle is structured across four strategic, overlapping
       const navLinks = document.querySelectorAll('.sidebar-link');
       
       let currentSectionId = "sec-title";
+      if (sections.length > 0) {
+        currentSectionId = sections[0].id;
+      }
+      
       sections.forEach(sec => {
         const top = sec.getBoundingClientRect().top;
         if (top < 120) {
@@ -1338,8 +1379,8 @@ The execution of Project Mantle is structured across four strategic, overlapping
       });
 
       navLinks.forEach(link => {
-        const onclickAttr = link.getAttribute('onclick');
-        if (onclickAttr && onclickAttr.includes(currentSectionId)) {
+        const targetId = link.getAttribute('data-target');
+        if (targetId === currentSectionId) {
           link.classList.add('active');
         } else {
           link.classList.remove('active');
@@ -1777,6 +1818,9 @@ The execution of Project Mantle is structured across four strategic, overlapping
         await mermaid.run({
           nodes: document.querySelectorAll('.mermaid'),
         });
+
+        // Build the dynamic sidebar navigation links
+        buildSidebar();
 
         // Initialize inline carousels in doc mode
         document.querySelectorAll(".carousel-container").forEach(container => {
