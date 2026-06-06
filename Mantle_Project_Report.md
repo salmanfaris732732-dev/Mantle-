@@ -4,6 +4,8 @@
 **Security Classification:** Strictly Confidential / Investor-Ready  
 **Lead Architects:** Chief Technology Officer & Global Infrastructure Architect, Icobo Group  
 
+![Mantle - Strategic Raw Materials](file:///C:/Users/salma/OneDrive/Documents/icobo%20confidantional/mantle%20project/assets/mantle_hero_industrial.jpg)
+
 ---
 
 > [!IMPORTANT]
@@ -53,6 +55,8 @@ To maximize asset protection and tax efficiency, the core intellectual property 
 ## 2. The 4-Pillar Integration Ecosystem
 
 Mantle sits at the center of the Icobo Group conglomerate, orchestrating data and control signals between four primary operational pillars.
+
+![Mantle - Supplying the Foundations of Industry](file:///C:/Users/salma/OneDrive/Documents/icobo%20confidantional/mantle%20project/assets/mantle_hero_shipping.jpg)
 
 ```mermaid
 graph TD
@@ -112,6 +116,8 @@ CoreGrid is the transactional heart of Mantle's enterprise planning layer. It ma
 This is the physical production infrastructure, featuring our advanced **OmniForge** (metallurgical smelting and casting) and **OmniMatrix** (extrusion and refining) systems.
 *   Mantle routes digital orders directly to these facilities, bypassing intermediate plant management.
 *   Raw scrap is converted into our high-margin, proprietary product lines: **Cuprogen** (ultra-pure copper rod and wire) and **Aurogen** (high-grade aluminum extrusions), alongside industrial plastic granules and paper packaging.
+
+![Mantle - Foundations of Global Industry](file:///C:/Users/salma/OneDrive/Documents/icobo%20confidantional/mantle%20project/assets/mantle_hero_mining.jpg)
 
 ---
 
