@@ -1,0 +1,5 @@
+node_modules/
+.chrome-profile/
+.edge-profile/
+# Ignore local log files
+*.log
