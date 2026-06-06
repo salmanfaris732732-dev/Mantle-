@@ -13,8 +13,8 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
   
-  <!-- Marked.js for markdown parsing -->
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- Pin Marked.js to v4.3.0 to prevent breaking signature changes -->
+  <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
   
   <!-- Mermaid.js for diagram rendering -->
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10.2.4/dist/mermaid.min.js"></script>
@@ -521,8 +521,11 @@
 
       // Custom blockquote rendering to convert > [!NOTE] to styled alerts
       renderer.blockquote = function(quote) {
+        // Handle both string (marked < 12) and object (marked >= 12) signatures
+        let rawQuote = typeof quote === 'string' ? quote : (quote.text || "");
+        
         // Strip paragraph tags if present for parsing
-        const cleaned = quote.replace(/<\/?p>/g, '').trim();
+        const cleaned = rawQuote.replace(/<\/?p>/g, '').trim();
         const match = cleaned.match(/^\[!(IMPORTANT|NOTE|TIP|WARNING)\]\s*(.*)/is);
         
         if (match) {
@@ -530,19 +533,36 @@
           const content = match[2];
           return `<div class="alert alert-${type}"><div class="alert-title">${type}</div><p>${content}</p></div>`;
         }
-        return `<blockquote>${quote}</blockquote>`;
+        return `<blockquote>${rawQuote}</blockquote>`;
       };
 
       // Custom codeblock rendering for carousels and mermaid
       const defaultCode = renderer.code.bind(renderer);
       renderer.code = function(code, language, escaped) {
-        if (language === 'carousel') {
-          return parseCarouselCodeblock(code);
+        // Handle both string and object signatures
+        let rawCode = "";
+        let lang = "";
+        if (typeof code === 'string') {
+          rawCode = code;
+          lang = language || "";
+        } else if (code && typeof code === 'object') {
+          rawCode = code.text || "";
+          lang = code.lang || "";
         }
-        if (language === 'mermaid') {
-          return `<pre class="mermaid">${code}</pre>`;
+
+        if (lang === 'carousel') {
+          return parseCarouselCodeblock(rawCode);
         }
-        return defaultCode(code, language, escaped);
+        if (lang === 'mermaid') {
+          return `<pre class="mermaid">${rawCode}</pre>`;
+        }
+        
+        // Fallback to default rendering
+        if (typeof code === 'string') {
+          return defaultCode(code, language, escaped);
+        } else {
+          return defaultCode(code);
+        }
       };
 
       marked.setOptions({
