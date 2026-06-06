@@ -881,6 +881,106 @@
         display: none; /* Hide images on small carousels to save space */
       }
     }
+
+    /* PDF/Print Optimization Styles */
+    @media print {
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      header, .sidebar-nav, .view-modes, .sim-action-bar, .carousel-btn, .carousel-indicators, footer {
+        display: none !important;
+      }
+      .portal-layout {
+        display: block !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      .document-card {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      h1, h2, h3, h4, h5, h6 {
+        color: #000000 !important;
+      }
+      h1 {
+        background: none !important;
+        -webkit-text-fill-color: initial !important;
+        page-break-before: avoid !important;
+        font-size: 2.2rem !important;
+        border-bottom: 2px solid #000000 !important;
+        margin-top: 0 !important;
+      }
+      h2 {
+        page-break-before: always !important;
+        border-bottom: 1px solid #dddddd !important;
+        color: #000000 !important;
+        padding-bottom: 0.3em !important;
+        margin-top: 2rem !important;
+      }
+      h2::before {
+        display: none !important;
+      }
+      h3 {
+        color: #1e3a8a !important;
+        margin-top: 1.5rem !important;
+      }
+      p, li, td, th {
+        color: #1e293b !important;
+      }
+      table {
+        page-break-inside: avoid !important;
+        border: 1px solid #cccccc !important;
+      }
+      th {
+        background-color: #f1f5f9 !important;
+        color: #000000 !important;
+        border-bottom: 2px solid #cccccc !important;
+      }
+      tr {
+        border-bottom: 1px solid #e2e8f0 !important;
+      }
+      .alert {
+        background: #f8fafc !important;
+        border: 1px solid #e2e8f0 !important;
+        border-left: 6px solid !important;
+        page-break-inside: avoid !important;
+      }
+      .alert-important { border-left-color: #ef4444 !important; }
+      .alert-note { border-left-color: #3b82f6 !important; }
+      .alert-tip { border-left-color: #10b981 !important; }
+      .alert-warning { border-left-color: #f59e0b !important; }
+      
+      .mermaid, .simulator-widget, .pipeline-widget, .carousel-container {
+        page-break-inside: avoid !important;
+      }
+      .simulator-widget {
+        border: 1px solid #cbd5e1 !important;
+        background: #f8fafc !important;
+        box-shadow: none !important;
+      }
+      .sim-card {
+        border: 1px solid #e2e8f0 !important;
+        background: #ffffff !important;
+      }
+      .sim-terminal {
+        background: #f1f5f9 !important;
+        color: #0f172a !important;
+        border: 1px solid #cbd5e1 !important;
+        box-shadow: none !important;
+      }
+      code, pre code {
+        background: #f1f5f9 !important;
+        color: #0f172a !important;
+        border: 1px solid #cbd5e1 !important;
+      }
+    }
   </style>
 </head>
 <body>
