@@ -1324,8 +1324,9 @@ The execution of Project Mantle is structured across four strategic, overlapping
       // Clear existing hardcoded links
       menuContainer.innerHTML = "";
 
-      // Find h1 (Title Page) and h2 elements
-      const headings = reportContainer.querySelectorAll("h1, h2");
+      // Find h1 (Title Page) and h2 elements, excluding those inside carousels
+      const headings = Array.from(reportContainer.querySelectorAll("h1, h2"))
+        .filter(heading => !heading.closest(".carousel-container"));
       
       headings.forEach((heading, index) => {
         let slug = heading.id;
