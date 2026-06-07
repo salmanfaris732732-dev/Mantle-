@@ -1,8 +1,22 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 
 const PORT = 3000;
+
+function getLocalIpAddress() {
+  const interfaces = os.networkInterfaces();
+  for (const interfaceName in interfaces) {
+    const addresses = interfaces[interfaceName];
+    for (const address of addresses) {
+      if (address.family === 'IPv4' && !address.internal) {
+        return address.address;
+      }
+    }
+  }
+  return 'localhost';
+}
 
 const MIME_TYPES = {
   '.html': 'text/html',
@@ -56,5 +70,11 @@ server.on('error', (err) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+  const localIp = getLocalIpAddress();
+  console.log(`========================================================`);
+  console.log(`  PROJECT MANTLE SERVER IS ONLINE AND RUNNING`);
+  console.log(`========================================================`);
+  console.log(`  Local Access:      http://localhost:${PORT}`);
+  console.log(`  Network Access:    http://${localIp}:${PORT}  <-- Type this on your phone!`);
+  console.log(`========================================================`);
 });

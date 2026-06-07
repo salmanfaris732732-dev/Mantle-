@@ -85,12 +85,23 @@
     h1 {
       font-size: 2.8rem;
       font-weight: 900;
-      background: linear-gradient(135deg, #ffffff 30%, #94a3b8 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: #ffffff; /* Fallback */
       margin-top: 0;
       border-bottom: 1px solid var(--border-color);
       padding-bottom: 0.5em;
+    }
+
+    h1 span.gradient-text {
+      background: linear-gradient(135deg, #ffffff 30%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: inline-block;
+      max-width: 100%;
+      box-decoration-break: clone;
+      -webkit-box-decoration-break: clone;
+      padding-right: 0.15em;
+      word-wrap: break-word;
     }
 
     h2 {
@@ -357,11 +368,13 @@
 
     /* Tables */
     table {
+      display: block;
       width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
       border-collapse: collapse;
       margin: 2.5rem 0;
       border-radius: 12px;
-      overflow: hidden;
       border: 1px solid var(--border-color);
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     }
@@ -784,6 +797,12 @@
       justify-content: center;
       margin: 2rem 0;
       box-shadow: inset 0 2px 10px rgba(0,0,0,0.8);
+      overflow-x: auto;
+      max-width: 100%;
+    }
+    .mermaid svg {
+      max-width: 100% !important;
+      height: auto !important;
     }
 
     /* LaTeX blocks centering */
@@ -864,6 +883,7 @@
     @media (max-width: 968px) {
       .portal-layout {
         grid-template-columns: 1fr;
+        gap: 1.5rem;
       }
       .sidebar-nav {
         display: none;
@@ -872,13 +892,95 @@
         padding: 1rem 1.5rem;
       }
       .document-card {
-        padding: 2rem;
+        padding: 2.5rem 1.5rem;
+      }
+      .carousel-container {
+        aspect-ratio: auto !important;
+        min-height: 450px;
       }
       .carousel-slide-content {
         grid-template-columns: 1fr;
+        gap: 1.5rem;
       }
       .carousel-slide img {
-        display: none; /* Hide images on small carousels to save space */
+        max-height: 200px;
+        width: auto;
+        margin: 1rem auto;
+      }
+    }
+
+    @media (max-width: 640px) {
+      h1 {
+        font-size: 1.85rem !important;
+      }
+      h2 {
+        font-size: 1.4rem !important;
+      }
+      h3 {
+        font-size: 1.15rem !important;
+      }
+      header {
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 1rem;
+        align-items: center;
+      }
+      .logo-container {
+        justify-content: center;
+      }
+      .logo-text {
+        font-size: 1.1rem;
+      }
+      .view-modes {
+        width: 100%;
+        justify-content: center;
+      }
+      .view-btn {
+        flex: 1;
+        text-align: center;
+        padding: 0.5rem 0.8rem;
+        font-size: 0.8rem;
+      }
+      .document-card {
+        padding: 1.5rem 1rem;
+      }
+      .carousel-container {
+        aspect-ratio: auto !important;
+        min-height: 480px;
+      }
+      .carousel-slide {
+        padding: 1.5rem 1rem;
+      }
+      .carousel-slide h1 {
+        font-size: 1.4rem !important;
+      }
+      .sim-grid {
+        grid-template-columns: 1fr;
+      }
+      .sim-action-bar {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+        text-align: center;
+      }
+      .pipeline-steps {
+        flex-direction: column;
+        gap: 1rem;
+      }
+      .pipeline-steps::before {
+        display: none;
+      }
+      .pipeline-step {
+        width: 100%;
+        flex-direction: row;
+        gap: 1rem;
+        justify-content: flex-start;
+      }
+      .pipeline-indicator {
+        width: 35px;
+        height: 35px;
+        margin-bottom: 0;
+        font-size: 0.85rem;
       }
     }
 
@@ -1588,8 +1690,9 @@ The execution of Project Mantle is structured across four strategic, overlapping
       const title = container.querySelector("h1");
       if (title) {
         title.id = "sec-title";
-        // Wrap title and version tags
-        title.innerHTML = `<span class="badge badge-primary">SYSTEM V1.1.0</span> <span class="badge badge-secondary">ICOBO ORIGIN</span><br>` + title.innerHTML;
+        // Wrap the title text (excluding badges) in a span for gradient text rendering
+        const originalText = title.innerHTML;
+        title.innerHTML = `<span class="badge badge-primary">SYSTEM V1.1.0</span> <span class="badge badge-secondary">ICOBO ORIGIN</span><br><span class="gradient-text">${originalText}</span>`;
       }
 
       // Query all headings to give them scrollable anchor IDs
