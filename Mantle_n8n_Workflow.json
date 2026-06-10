@@ -1,0 +1,394 @@
+{
+  "name": "Mantle Commodity Arbitrage & Supply Chain Execution",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * *"
+            }
+          ]
+        }
+      },
+      "id": "e44c2079-58df-4a6c-8f92-23f21a48c48a",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        100,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.mockaroo.com/api/lme-copper-spot",
+        "options": {}
+      },
+      "id": "18f6735a-ec04-4322-8356-9b5cfb5f6cd2",
+      "name": "Fetch LME Prices",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        300,
+        140
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.mockaroo.com/api/smartcycle-scrap-feedstock",
+        "options": {}
+      },
+      "id": "02ad0db4-b258-45a7-ab29-beeaefd2e3bd",
+      "name": "Fetch SmartCycle Telemetry",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        300,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.mockaroo.com/api/coregrid-inventory",
+        "options": {}
+      },
+      "id": "e0e33efd-88b9-4806-a81d-87de0eb6df8f",
+      "name": "Fetch CoreGrid Inventory",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        300,
+        460
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const lmeData = $('Fetch LME Prices').first().json;\nconst smartCycleData = $('Fetch SmartCycle Telemetry').first().json;\nconst coreGridData = $('Fetch CoreGrid Inventory').first().json;\n\n// Fallbacks for testing\nconst pVirgin = lmeData.copper_spot_usd_per_ton || 8450;\nconst pScrap = smartCycleData.scrap_copper_usd_per_ton || 7120;\nconst logisticsCost = 350; // Jebel Ali freight corridor logistics\nconst esgCredit = 80; // ESG Carbon Credits per ton of recycled copper\n\n// Formula: Δ = P_Virgin - (P_Scrap + Logistics) + ESG\nconst spread = pVirgin - (pScrap + logisticsCost) + esgCredit;\n\nreturn [{\n  json: {\n    pVirgin,\n    pScrap,\n    spread,\n    currentInventoryTons: coreGridData.recycled_copper_inventory_tons || 45,\n    pendingOrdersCount: coreGridData.pending_orders || 3,\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "dcf3cbdf-8d07-4252-9602-fa67ef0880be",
+      "name": "Calculate Arbitrage Spread",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "key",
+              "value": "YOUR_GEMINI_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "contents",
+              "value": "={{ { \"parts\": [{ \"text\": \"Analyze the following copper market data. Determine whether we should execute a recycled feedstock purchase ('BUY') or hold ('HOLD'). Output raw JSON with 'decision' and 'rationale' keys.\\n\\nMarket Data:\\n- LME Virgin Copper: $\" + $json.pVirgin + \"\\n- SmartCycle Scrap: $\" + $json.pScrap + \"\\n- Spread: $\" + $json.spread + \"\\n- Inventory: \" + $json.currentInventoryTons + \"t\\n- Pending Orders: \" + $json.pendingOrdersCount + \"\\n\\nRequirements:\\n- If spread > 120 and inventory < 100, decision: BUY.\\n- Otherwise: HOLD.\" }] } }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "31be9128-40de-4416-9285-d06981cfda60",
+      "name": "Gemini AI Spread Decision",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        780,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "let rawText = '';\ntry {\n  rawText = $json.candidates[0].content.parts[0].text;\n} catch (e) {\n  // Fallback if API fails or returns unexpected format\n  return [{\n    json: {\n      decision: 'HOLD',\n      rationale: 'Failed to parse Gemini response or API error.'\n    }\n  }];\n}\n\n// Clean up markdown block styling if Gemini wrapped the JSON\nconst cleanJsonText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();\nlet parsed = { decision: 'HOLD', rationale: 'Parse error' };\ntry {\n  parsed = JSON.parse(cleanJsonText);\n} catch (e) {}\n\nconst previousData = $('Calculate Arbitrage Spread').first().json;\n\nreturn [{\n  json: {\n    decision: parsed.decision.toUpperCase(),\n    rationale: parsed.rationale,\n    spread: previousData.spread,\n    pVirgin: previousData.pVirgin,\n    pScrap: previousData.pScrap,\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "c71165a2-9445-4203-ac80-496660ea9c6a",
+      "name": "Parse Gemini Decision",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        980,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "type": "string"
+          },
+          "conditions": [
+            {
+              "id": "90cf85df-9519-4824-a740-bde62f83f0ad",
+              "leftValue": "={{ $json.decision }}",
+              "rightValue": "BUY",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "2b3149de-8ef7-47b2-bdde-ea23dfa2862d",
+      "name": "Is Decision BUY?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.example.com/v1/coregrid/ledger",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "transaction_type",
+              "value": "Intra-Group Transfer Pricing Invoicing"
+            },
+            {
+              "name": "amount_usd",
+              "value": "={{ $json.spread }}"
+            },
+            {
+              "name": "entity",
+              "value": "JAFZA IP Holding Ltd"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "cc03eeb7-ff0b-4861-a066-6b2ad68efd51",
+      "name": "Post Ledger Invoicing",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1420,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.example.com/v1/jafza/customs/preclear",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "cargo_type",
+              "value": "Recycled Copper Feedstock"
+            },
+            {
+              "name": "destination",
+              "value": "Icobo Heavy Industries (Jebel Ali)"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ee7cc821-6b8f-4d9f-a0e2-e9cbef3dbbe9",
+      "name": "JAFZA Customs Gateway",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1640,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "=🚀 *Mantle Arbitrage Executed!* \\n\\n*Action*: BUY Recycled Scrap\\n*Spread*: ${{ $json.spread }} /ton (LME Spot: ${{ $json.pVirgin }}, Scrap: ${{ $json.pScrap }})\\n*Rationale*: {{ $json.rationale }}\\n*JAFZA Invoicing*: Routed transfer pricing royalty to JAFZA IP Holding Ltd.\\n*Customs*: Digital freight documents transmitted for Jebel Ali corridor."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ff9cc821-6b8f-4d9f-a0e2-e9cbef3dbbef",
+      "name": "Slack Notification (BUY)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1860,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "=📊 *Mantle Arbitrage Daily Report* \\n\\n*Action*: HOLD (No Action)\\n*Spread*: ${{ $json.spread }} /ton (LME Spot: ${{ $json.pVirgin }}, Scrap: ${{ $json.pScrap }})\\n*Rationale*: {{ $json.rationale }}\\n*Status*: Inventory levels stable. Checking next cycle."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "cc03eeb7-ff0b-4861-a066-6b2ad68efd52",
+      "name": "Slack Notification (HOLD)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1420,
+        400
+      ]
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch LME Prices",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch SmartCycle Telemetry",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch CoreGrid Inventory",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch LME Prices": {
+      "main": [
+        [
+          {
+            "node": "Calculate Arbitrage Spread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch SmartCycle Telemetry": {
+      "main": [
+        [
+          {
+            "node": "Calculate Arbitrage Spread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch CoreGrid Inventory": {
+      "main": [
+        [
+          {
+            "node": "Calculate Arbitrage Spread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Arbitrage Spread": {
+      "main": [
+        [
+          {
+            "node": "Gemini AI Spread Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini AI Spread Decision": {
+      "main": [
+        [
+          {
+            "node": "Parse Gemini Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Gemini Decision": {
+      "main": [
+        [
+          {
+            "node": "Is Decision BUY?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Decision BUY?": {
+      "main": [
+        [
+          {
+            "node": "Post Ledger Invoicing",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Slack Notification (HOLD)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post Ledger Invoicing": {
+      "main": [
+        [
+          {
+            "node": "JAFZA Customs Gateway",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JAFZA Customs Gateway": {
+      "main": [
+        [
+          {
+            "node": "Slack Notification (BUY)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
